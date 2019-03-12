@@ -8,6 +8,8 @@ from main.models import User
 class RegistrationForm(FlaskForm):
     username = StringField('Username',
                            validators=[DataRequired(), Length(min=2, max=20)])
+    first_name = StringField('First_name', validators=[DataRequired(), Length(min=1, max=50)])
+    last_name = StringField('Last_name', validators=[DataRequired(), Length(min=1, max=100)])
     email = StringField('Email',
                         validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
@@ -37,6 +39,8 @@ class LoginForm(FlaskForm):
 class UpdateAccountForm(FlaskForm):
     username = StringField('Username',
                            validators=[DataRequired(), Length(min=2, max=20)])
+    first_name = StringField('First name', validators=[DataRequired, Length(min=1, max=50)])
+    last_name = StringField('Last name', validators=[DataRequired, Length(min=1, max=100)])
     email = StringField('Email',
                         validators=[DataRequired(), Email()])
     submit = SubmitField('Update')

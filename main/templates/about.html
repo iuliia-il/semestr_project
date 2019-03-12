@@ -4,8 +4,8 @@
 
         <article class="media content-section">
           <div class="media-body">
-            <h2><a class="article-title" href="{{ url_for('messages.chat') }}">{{ user.username }}</a></h2>
-            <small class="text-muted">{{ user.email }}</small>
+            <h2><a class="article-title" href="{{ url_for('messages.chat') }}">{{ user.first_name + ' ' + user.last_name }}</a></h2>
+            <small class="text-muted">{{ user.username }}</small>
           </div>
         </article>
 
