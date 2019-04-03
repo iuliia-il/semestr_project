@@ -3,6 +3,5 @@ class Config:
     SQLALCHEMY_DATABASE_URI = 'sqlite:///data.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     POSTS_PER_PAGE = 15
-    TIMEOUT_CHAT = 1
 
 
