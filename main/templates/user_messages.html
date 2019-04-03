@@ -1,10 +1,27 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block app_content %}
 
-</body>
-</html>
+    <h1>{{ Send messages }}</h1>
+    {% for messages in message.items %}
+    <h3 class="article-title" id="post{{ post.id }}">{{ message.body }}</h3>
+    <legend class="border-bottom mb-1"><small class="text-muted"><b>To:</b>
+    <a href="">
+        {{ message.recipient.first_name + ' ' + message.recipient.last_name }}</a>
+            <b>on</b> {{ message.timestamp }}</small></legend>
+    {% endfor %}
+
+    <nav aria-label="...">
+        <ul class="pager">
+            <li class="previous{% if not prev_url %} disabled{% endif %}">
+                <a href="{{ prev_url or '#' }}">
+                    <span aria-hidden="true">&larr;</span> {{ 'Newer messages' }}
+                </a>
+            </li>
+            <li class="next{% if not next_url %} disabled{% endif %}">
+                <a href="{{ next_url or '#' }}">
+                    {{ 'Older messages' }} <span aria-hidden="true">&rarr;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+{% endblock %}

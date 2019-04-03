@@ -1,16 +1,16 @@
-{% extends "layout.html" %}
-{% block content %}
+{% extends "base.html" %}
+{% block app_content %}
     <div class="content-section">
       <div class="media">
         <div class="media-body">
-          <h2 class="account-heading">{{ current_user.username }}</h2>
-          <p class="text-secondary">{{ current_user.email }}</p>
+          <h3 class="account-heading"><b>Username:</b> {{ current_user.username }}</h3>
+            <p class="text-secondary"><b>E-mail:</b> {{ current_user.email }}</p>
         </div>
       </div>
         <form method="POST" action="" enctype="multipart/form-data">
             {{ form.hidden_tag() }}
             <fieldset class="form-group">
-                <legend class="border-bottom mb-4">Information</legend>
+                <legend class="border-bottom mb-4">Personal Data</legend>
                 <div class="form-group">
                     {{ form.username.label(class="form-control-label") }}
                     {% if form.username.errors %}
@@ -69,4 +69,4 @@
             </div>
         </form>
     </div>
-{% endblock content %}
+{% endblock %}

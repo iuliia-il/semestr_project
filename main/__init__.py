@@ -4,11 +4,8 @@ from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
 from main.config import Config
+from flask_bootstrap import Bootstrap
 
-# app.config.update(dict(
-#     SECRET_KEY="powerful secretkey",
-#     WTF_CSRF_SECRET_KEY="a csrf secret key"
-# ))
 
 db = SQLAlchemy()
 
@@ -17,10 +14,12 @@ login_manager = LoginManager()
 login_manager.login_view = 'login'
 mail = Mail()
 
+
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(Config)
 
+    bootstrap = Bootstrap(app)
     db.init_app(app)
     bcrypt.init_app(app)
     login_manager.init_app(app)

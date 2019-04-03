@@ -5,6 +5,7 @@ from flask_login import current_user
 from main.models import User
 
 
+# registracni formular s kontrolou opakovaneho pouziti emailu a loginu.
 class RegistrationForm(FlaskForm):
     username = StringField('Username',
                            validators=[DataRequired(), Length(min=2, max=20)])
@@ -28,14 +29,17 @@ class RegistrationForm(FlaskForm):
             raise ValidationError('That email is taken. Please choose a different one.')
 
 
+# forma pro prihlaseni
 class LoginForm(FlaskForm):
     email = StringField('Email',
                         validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
-    remember = BooleanField('Remember Me')
+    remember = BooleanField('Remember email a password')
     submit = SubmitField('Login')
 
 
+# prakticky stejny formular, jako registracni, ale slouzi pro zmenu povolenych dat v profilu uzivatele, a take provadi
+# kontrolu emailu a loginu.
 class UpdateAccountForm(FlaskForm):
     username = StringField('Username',
                            validators=[DataRequired(), Length(min=2, max=20)])
@@ -58,6 +62,7 @@ class UpdateAccountForm(FlaskForm):
                 raise ValidationError('That email is taken. Please choose a different one.')
 
 
+# formular pro zasilani noveho hesla a kontrolu emailu
 class RequestResetForm(FlaskForm):
     email = StringField('Email',
                         validators=[DataRequired(), Email()])
@@ -66,9 +71,10 @@ class RequestResetForm(FlaskForm):
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()
         if user is None:
-            raise ValidationError('There is no account with that email. You must register first.')
+            raise ValidationError('There is no account with that email.')
 
 
+# formular pro nove heslo
 class ResetPasswordForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     confirm_password = PasswordField('Confirm Password',

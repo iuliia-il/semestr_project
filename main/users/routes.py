@@ -8,45 +8,49 @@ from main.users.utils import send_reset_email
 users = Blueprint('users', __name__)
 
 
+# slouzi pro registrace uzivatelu a ukladani dat do sqlite DB. Pokud registrace probehla uspesne,
+# otevre stranku s prihlasenim.
 @users.route("/register", methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for('primary.about'))
+        return redirect(url_for('primary.home'))
     form = RegistrationForm()
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         user = User(username=form.username.data, first_name=form.first_name.data, last_name=form.last_name.data,
                     email=form.email.data, password=hashed_password)
-        # user = User(username=form.username.data, email=form.email.data, password=hashed_password)
         db.session.add(user)
         db.session.commit()
-        flash('Your account has been created! You are now able to log in', 'success')
+        flash('Your account has been created!', 'success')
         return redirect(url_for('users.login'))
     return render_template('register.html', title='Register', form=form)
 
 
+# prihlaseni uzivatelu do systemu. Kontroluje spravnost uvedenych udaju.
 @users.route("/login", methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('primary.about'))
+        return redirect(url_for('primary.home'))
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user, remember=form.remember.data)
             next_page = request.args.get('next')
-            return redirect(next_page) if next_page else redirect(url_for('primary.about'))
+            return redirect(next_page) if next_page else redirect(url_for('primary.home'))
         else:
             flash('Login Unsuccessful. Please check email and password', 'danger')
     return render_template('login.html', title='Login', form=form)
 
 
+# logout ze systemu.
 @users.route("/logout")
 def logout():
     logout_user()
     return redirect(url_for('primary.home'))
 
 
+# zobrazeni uvedenych v registracnim formularu osobnich dat. A take slouzi pro zmenu povolenych udaju.
 @users.route("/account", methods=['GET', 'POST'])
 @login_required
 def account():
@@ -67,20 +71,20 @@ def account():
     return render_template('account.html', title='Account', form=form)
 
 
+# teoreticka priprava pro zobrazeni odeslanych zprav aktualniho uzivatele, ale jeste to musim upravit.
 @users.route("/user/<string:username>")
 def user_message(username):
     page = request.args.get('page', 1, type=int)
     user = User.query.filter_by(username=username).first_or_404()
-    posts = Message.query.filter_by(author=user)\
-        .order_by(Message.date_posted.desc())\
-        .paginate(page=page, per_page=5)
-    return render_template('user_messages.html', posts=posts, user=user)
+    messages = Message.query.filter_by(author=user).order_by(Message.date_posted.desc()).paginate(page=page, per_page=9)
+    return render_template('user_messages.html', messages=messages, user=user)
 
 
+# slouzi pro zmenu hesla
 @users.route("/reset_password", methods=['GET', 'POST'])
 def reset_request():
     if current_user.is_authenticated:
-        return redirect(url_for('primary.about'))
+        return redirect(url_for('primary.home'))
     form = RequestResetForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
@@ -90,10 +94,11 @@ def reset_request():
     return render_template('reset_request.html', title='Reset Password', form=form)
 
 
+# slouzi pro zmenu hesla
 @users.route("/reset_password/<token>", methods=['GET', 'POST'])
 def reset_token(token):
     if current_user.is_authenticated:
-        return redirect(url_for('primary.about'))
+        return redirect(url_for('primary.home'))
     user = User.verify_reset_token(token)
     if user is None:
         flash('That is an invalid or expired token', 'warning')
@@ -103,6 +108,6 @@ def reset_token(token):
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         user.password = hashed_password
         db.session.commit()
-        flash('Your password has been updated! You are now able to log in', 'success')
+        flash('Your password has been updated!', 'success')
         return redirect(url_for('users.login'))
     return render_template('reset_token.html', title='Reset Password', form=form)

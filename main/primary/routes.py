@@ -3,9 +3,11 @@ from main.models import User
 
 primary = Blueprint('primary', __name__)
 
+
 @primary.route("/")
 def home():
     return render_template('home.html')
+
 
 @primary.route("/about")
 def about():

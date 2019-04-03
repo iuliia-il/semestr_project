@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+
+    <h1>{{ Messages }}</h1>
+    {% for post in messages %}
+    <h3 class="article-title" id="post{{ post.id }}">{{ post.body }}</h3>
+    <legend class="border-bottom mb-1"><small class="text-muted"><b>From:</b>
+    <a href="{{ url_for('messages.send_message', recipient=post.sender_id) }}">
+        {{ post.author.first_name + ' ' + post.author.last_name }}</a>
+            <b>on</b> {{ post.timestamp }}</small></legend>
+    {% endfor %}
+
+    <nav aria-label="...">
+        <ul class="pager">
+            <li class="previous{% if not prev_url %} disabled{% endif %}">
+                <a href="{{ prev_url or '#' }}">
+                    <span aria-hidden="true">&larr;</span> {{ 'Newer messages' }}
+                </a>
+            </li>
+            <li class="next{% if not next_url %} disabled{% endif %}">
+                <a href="{{ next_url or '#' }}">
+                    {{ 'Older messages' }} <span aria-hidden="true">&rarr;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+{% endblock %}
