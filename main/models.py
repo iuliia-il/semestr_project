@@ -1,6 +1,5 @@
 # tabulky se sloupci pro DB, pripadne vztahy mezi nima a funkce pro upozorneni, odesilani a zobrazeni zprav atd.
 # Vsechna data uklada se do souboru "data.db" ve slozce main.
-
 import json
 from datetime import datetime
 import redis
@@ -78,6 +77,7 @@ class User(db.Model, UserMixin):
 
 
 class Message(db.Model):
+    __searchable__ = ['body']
     id = db.Column(db.Integer, primary_key=True)
     sender_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     recipient_id = db.Column(db.Integer, db.ForeignKey('user.id'))

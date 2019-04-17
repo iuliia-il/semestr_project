@@ -1,13 +1,20 @@
 {% extends "base.html" %}
 {% block app_content %}
+<div class="table-responsive">
+<table class="table">
+    <tr>
+        <td>
+            <h4><a href="{{ url_for('messages.msg') }}">Received messages</a></h4>
+            <h4><a href="{{ url_for('users.user_message') }}">Sent messages</a></h4>
+        </td>
 
-    <h1>{{ Send messages }}</h1>
-    {% for messages in message.items %}
-    <h3 class="article-title" id="post{{ post.id }}">{{ message.body }}</h3>
+        <td>
+    {% for post in messages %}
+    <h4 id="post{{ post.id }}">{{ post.body }}</h4>
     <legend class="border-bottom mb-1"><small class="text-muted"><b>To:</b>
-    <a href="">
-        {{ message.recipient.first_name + ' ' + message.recipient.last_name }}</a>
-            <b>on</b> {{ message.timestamp }}</small></legend>
+        <a href="{{ url_for('messages.send_message', recipient=post.recipient.username) }}">
+        {{ post.recipient.first_name + ' ' + post.recipient.last_name }}</a>
+            <b>on</b> {{ post.timestamp }}</small></legend>
     {% endfor %}
 
     <nav aria-label="...">
@@ -24,4 +31,8 @@
             </li>
         </ul>
     </nav>
+            </td>
+    </tr>
+</table>
+    </div>
 {% endblock %}

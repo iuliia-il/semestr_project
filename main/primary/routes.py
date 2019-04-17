@@ -12,4 +12,4 @@ def home():
 @primary.route("/about")
 def about():
     users = User.query.all()
-    return render_template('about.html', users=users)
+    return render_template('users.html', users=users)

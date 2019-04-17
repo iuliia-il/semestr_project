@@ -1,4 +1,4 @@
-from flask import render_template, url_for, flash, redirect, request, Blueprint
+from flask import render_template, url_for, flash, redirect, request, Blueprint, current_app
 from flask_login import login_user, current_user, logout_user, login_required
 from main import db, bcrypt
 from main.models import User, Message
@@ -71,13 +71,19 @@ def account():
     return render_template('account.html', title='Account', form=form)
 
 
-# teoreticka priprava pro zobrazeni odeslanych zprav aktualniho uzivatele, ale jeste to musim upravit.
-@users.route("/user/<string:username>")
-def user_message(username):
+# slouzi pro zobrazeni seznamu vsech odeslanych zprav uzivatele
+@users.route("/user_messages")
+def user_message():
     page = request.args.get('page', 1, type=int)
-    user = User.query.filter_by(username=username).first_or_404()
-    messages = Message.query.filter_by(author=user).order_by(Message.date_posted.desc()).paginate(page=page, per_page=9)
-    return render_template('user_messages.html', messages=messages, user=user)
+    messages = current_user.messages_sent.order_by(
+        Message.timestamp.desc()).paginate(
+            page, current_app.config['POSTS_PER_PAGE'], False)
+    next_url = url_for('users.user_message', page=messages.next_num) \
+        if messages.has_next else None
+    prev_url = url_for('users.user_message', page=messages.prev_num) \
+        if messages.has_prev else None
+    return render_template('user_messages.html', messages=messages.items,
+                           next_url=next_url, prev_url=prev_url)
 
 
 # slouzi pro zmenu hesla

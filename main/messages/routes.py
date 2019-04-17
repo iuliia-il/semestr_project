@@ -1,15 +1,18 @@
 from datetime import datetime
-from flask import render_template, url_for, flash, redirect, request, Blueprint, current_app, jsonify
+from flask import render_template, url_for, flash, redirect, request, Blueprint, current_app, jsonify, session, g
 from flask_login import login_required, current_user
-from main.messages.forms import MessageForm
+from sqlalchemy.testing.pickleable import Foo
+
+from main.messages.forms import MessageForm, SearchForm
 from main.models import Message, db, User, Notification
 
 messages = Blueprint('messages', __name__)
 
 
 # Slouzi pro privatni komunikaci uzivatelu, kde "recipient" je libovolnym uzivatelem z DB, krome aktualniho.
-# A take slouzi pro ukladani zprav do sqlite DB. Vztahuje se na stranku "about.html" (pak zmenim nazev na logicky),
-# kde je seznam vsech registrovanych uzivatelu systemu.
+# A take slouzi pro ukladani zprav do sqlite DB. Vztahuje se na stranku "users.html" kde je seznam vsech registrovanych
+# uzivatelu systemu. Mozna schopnost odpovedet' pri kliknuti na jmeno autora zpravy.
+@messages.route('/send_message', methods=['GET', 'POST'])
 @messages.route('/send_message/<recipient>', methods=['GET', 'POST'])
 @login_required
 def send_message(recipient):
@@ -24,23 +27,6 @@ def send_message(recipient):
         return redirect(url_for('primary.about', username=recipient))
     return render_template('send_message.html', title='Send Message',
                            form=form, recipient=recipient)
-
-
-# Mozna schopnost odpovedet' pri kliknuti na jmeno autora zpravy, ale jeste nefunguje tak, jak treba, to musim upravit.
-@messages.route('/send_message/<post>/<author>', methods=['GET', 'POST'])
-@login_required
-def send_message_to(author):
-    user = User.query.filter_by(username=author).first_or_404()
-    form = MessageForm()
-    if form.validate_on_submit():
-        msg = Message(author=current_user, recipient=user,
-                      body=form.message.data)
-        db.session.add(msg)
-        db.session.commit()
-        flash('Your message has been sent.')
-        return redirect(url_for('primary.about', username=author))
-    return render_template('send_message.html', title='Send Message',
-                           form=form, recipient=author)
 
 
 # slouzi pro zobrazeni prijatych zprav podle datuma (nove se nachazi nahore), a take moznost prepinat mezi strankami
@@ -74,3 +60,20 @@ def notifications():
         'data': n.get_data(),
         'timestamp': n.timestamp
     } for n in notifications])
+
+
+@messages.route('/search', methods=['GET', 'POST'])
+@login_required
+def search():
+    form = SearchForm()
+    if request.method == 'POST' and form.validate_on_submit():
+        return redirect((url_for('search_results', query=form.search.data)))  # or what you want
+    return render_template('search.html', form=form)
+
+
+@messages.route('/search_results/<query>')
+@login_required
+def search_results(query):
+  results = User.query.whoosh_search(query).all()
+  return render_template('search_results.html', query=query, results=results)
+
